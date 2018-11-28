@@ -1,0 +1,32 @@
+apiVersion: skaffold/v1alpha2
+kind: Config
+build:
+  tagPolicy:
+    envTemplate:
+      template: "{{.DOCKER_REGISTRY}}/demo-bot/bdd-golang-http-1543405026:{{.VERSION}}"
+  artifacts:
+  - imageName: changeme
+    workspace: .
+    docker: {}
+  local: {}
+deploy:
+  kubectl:
+    manifests:
+profiles:
+- name: dev
+  build:
+    tagPolicy:
+      envTemplate:
+        template: "{{.DOCKER_REGISTRY}}/demo-bot/bdd-golang-http-1543405026:{{.DIGEST_HEX}}"
+    artifacts:
+    - docker: {}
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: bdd-golang-http-1543405026
+        chartPath: charts/bdd-golang-http-1543405026
+        setValueTemplates:
+          image.repository: "{{.DOCKER_REGISTRY}}/demo-bot/bdd-golang-http-1543405026"
+          image.tag: "{{.DIGEST_HEX}}"
+        
